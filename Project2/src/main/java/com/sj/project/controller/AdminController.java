@@ -174,10 +174,7 @@ public class AdminController {
 	}
 	
 	
-	
 	// MiniMSGpageU ///
-	
-	
 	@RequestMapping(value="/MiniMSGpageU", method=RequestMethod.GET)
 	public void MiniSendToUser(String msg_address, Model model){
 		logger.info("/MiniMSGpageU 호출 ");			
@@ -186,10 +183,6 @@ public class AdminController {
 		
 	}
 	
-	
-	
-	
-	
-	
+
 }//end class 
 
