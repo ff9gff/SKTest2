@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.sj.project.TourJoinMapper">
+	
+	<select id="selectlist" resultType="com.sj.project.domain.TourJoinVO">
+		select * from wm_tour_join
+		where trip_no = #{trip_no}
+		order by approval desc
+	</select>
+	
+	<select id = "selectperson" resultType="com.sj.project.domain.PersonalVO">
+		select * from wm_personal
+		where mno in (select mno from wm_tour_join where trip_no = #{trip_no})
+	</select>
+	
+	<update id="updateapproval">
+		update wm_tour_join
+		set approval = #{approval}
+		where list_no = #{list_no}
+	</update>
+	
+	<update id="endtrip">
+		update wm_tour
+		set expire = 1
+		where trip_no = #{trip_no}
+	</update>
+	
+	<insert id="insert">
+		insert into wm_tour_join (trip_no, mno, approval)
+		values(#{trip_no},#{mno},0)
+	</insert>
+	
+	<select id="selectProfile" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type=3 and content_no = #{mno}
+	</select>
+
+
+</mapper>

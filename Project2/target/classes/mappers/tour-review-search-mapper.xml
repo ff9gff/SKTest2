@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sj.project.TourReviewSearchMapper">
+
+	<!-- 후기 장소/닉네임 선택 검색 -->
+	<!-- 1 1 -->
+	<select id='select_nickname_search_11' resultType="com.sj.project.domain.NickReviewSearchResultDTO">
+		select img_url, title, region_name, review_no, hits, countofbest from (select a.region_name, b.title, c.img_url, b.review_no, b.hits, b.countofbest
+		from wm_review_region a, wm_review b, wm_image c, wm_personal d
+		where a.region_name like #{region_name} and d.nickname = #{nickname} and c.board_type = 2 and b.review_no = a.review_no and c.content_no = a.review_no and b.mno = d.mno)
+	</select>
+	
+	<!-- 1 0 -->
+	<select id='select_nickname_search_10' resultType="com.sj.project.domain.NickReviewSearchResultDTO">
+		select img_url, title, region_name, review_no, hits, countofbest from (select a.region_name, b.title, c.img_url, b.review_no, b.hits, b.countofbest
+		from wm_review_region a, wm_review b, wm_image c, wm_personal d
+		where a.region_name like #{region_name} and d.nickname is not null and c.board_type = 2 and b.review_no = a.review_no and c.content_no = a.review_no and b.mno = d.mno)
+	</select>
+	
+	<!-- 0 1 -->
+	<select id='select_nickname_search_01' resultType="com.sj.project.domain.NickReviewSearchResultDTO">
+		select img_url, title, region_name, review_no, hits, countofbest from (select a.region_name, b.title, c.img_url, b.review_no, b.hits, b.countofbest
+		from wm_review_region a, wm_review b, wm_image c, wm_personal d
+		where a.region_name is not null and d.nickname = #{nickname} and c.board_type = 2 and b.review_no = a.review_no and c.content_no = a.review_no and b.mno = d.mno)
+	</select>
+	
+	<!-- 0 0 -->
+	<select id='select_nickname_search_00' resultType="com.sj.project.domain.NickReviewSearchResultDTO">
+		select img_url, title, region_name, review_no, hits, countofbest from (select a.region_name, b.title, c.img_url, b.review_no, b.hits, b.countofbest
+		from wm_review_region a, wm_review b, wm_image c, wm_personal d
+		where a.region_name is not null and d.nickname is not null and c.board_type = 2 and b.review_no = a.review_no and a.review_no = c.content_no and b.mno = d.mno)
+	</select>
+
+
+</mapper>

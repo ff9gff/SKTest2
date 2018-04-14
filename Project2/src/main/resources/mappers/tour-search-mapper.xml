@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sj.project.TourSearchMapper">
+
+	<!-- 디폴트로 뿌려주는 게시글 -->
+	<select id="select_default_image" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image 
+		where board_type = 1 order by content_no desc
+	</select>
+	
+	<select id="select_default_title" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour where expire = 0 order by trip_no desc
+	</select>
+	
+	<select id="select_default_region" resultType="com.sj.project.domain.RegionVO">
+		select * from wm_tour_region order by trip_no desc
+	</select>
+	
+	<!-- 지역 검색 -->
+	<select id="select_main_image_region" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type = 1 and content_no in (select trip_no from wm_tour_region
+												where region_name like #{region_name})
+		order by content_no desc
+	</select>
+
+	<select id="select_main_title_region" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour 
+        where trip_no in (select trip_no from wm_tour_region
+						  where region_name like #{region_name})
+		and expire = 0
+		order by trip_no desc
+	</select>
+ 
+ 	<select id="select_main_region_region" resultType="com.sj.project.domain.RegionVO">
+ 		select * from wm_tour_region
+ 		where trip_no in (select trip_no from wm_tour_region
+						  where region_name like #{region_name})
+		order by trip_no desc
+ 	</select>
+	
+	
+
+	<!-- 기간 검색 -->
+	<select id="select_main_trip_image" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type = 1 and content_no in (select trip_no from wm_tour 
+                            					where start_date <![CDATA[<]]> to_date(#{end_date},'YYYY-MM-DD')+1
+                            					and end_date <![CDATA[>=]]> to_date(#{start_date},'YYYY-MM-DD'))
+    	order by content_no desc
+	</select>
+
+	<select id="select_main_trip_title" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour 
+        where start_date <![CDATA[<]]> to_date(#{end_date},'YYYY-MM-DD')+1
+        and end_date <![CDATA[>=]]> to_date(#{start_date},'YYYY-MM-DD')
+        and expire = 0
+        order by trip_no desc
+	</select>
+ 
+ 	<select id="select_main_trip_region" resultType="com.sj.project.domain.RegionVO">
+ 		select * from wm_tour_region
+ 		where trip_no in (select trip_no from wm_tour 
+                            where start_date <![CDATA[<]]> to_date(#{end_date},'YYYY-MM-DD')+1
+                            and end_date <![CDATA[>=]]> to_date(#{start_date},'YYYY-MM-DD'))
+    	order by trip_no desc
+ 	</select>
+	
+	
+	
+	
+	
+	
+	<!-- 상세 검색 -->
+	<!-- 지역명 / 출발일 / 성별 / 나이대 -->
+	
+	<!-- 1 0 0 0 -->
+	<select id='select_detail_search_1000' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date is not null and b.condition_sex is not null and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 1 0 0 -->
+	<select id='select_detail_search_1100' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date = #{start_date} and b.condition_sex is not null and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 1 1 0 -->
+	<select id='select_detail_search_1110' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date = #{start_date} and b.condition_sex = #{condition_sex} and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 1 1 1 -->
+	<select id='select_detail_search_1111' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date = #{start_date} and b.condition_sex = #{condition_sex} and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 1 0 1 -->
+	<select id='select_detail_search_1101' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date = #{start_date} and b.condition_sex is not null and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 0 1 1 -->
+	<select id='select_detail_search_1011' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date is not null and b.condition_sex = #{condition_sex} and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 0 1 0 -->
+	<select id='select_detail_search_1010' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date is not null and b.condition_sex = #{condition_sex} and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 1 0 0 1 -->
+	<select id='select_detail_search_1001' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.end_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name like #{region_name} and b.start_date is not null and b.condition_sex is not null and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 1 0 0 -->
+	<select id='select_detail_search_0100' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date = #{start_date} and b.condition_sex is not null and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 1 0 1 -->
+	<select id='select_detail_search_0101' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date = #{start_date} and b.condition_sex is not null and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 1 1 0 -->
+	<select id='select_detail_search_0110' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date = #{start_date} and b.condition_sex = #{condition_sex} and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 1 1 1 -->
+	<select id='select_detail_search_0111' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date = #{start_date} and b.condition_sex = #{condition_sex} and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 0 1 1 -->
+	<select id='select_detail_search_0011' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date is not null and b.condition_sex = #{condition_sex} and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 0 1 0 -->
+	<select id='select_detail_search_0010' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date is not null and b.condition_sex = #{condition_sex} and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 0 0 1 -->
+	<select id='select_detail_search_0001' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date is not null and b.condition_sex is not null and b.condition_age = #{condition_age} and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+	
+	<!-- 0 0 0 0 -->
+	<select id='select_detail_search_0000' resultType="com.sj.project.domain.DetailSearchResultDTO">
+		select img_url, title, region_name, trip_no, expire, condition_sex, condition_age from (select a.region_name, b.title, b.start_date, b.condition_sex, b.condition_age, b.trip_no, c.img_url, b.expire
+		from wm_tour_region a, wm_tour b, wm_image c
+		where a.region_name is not null and b.start_date is not null and b.condition_sex is not null and b.condition_age is not null and c.board_type = 1 and b.trip_no = a.trip_no and a.trip_no = c.content_no and b.expire = 0)
+	</select>
+
+
+
+
+
+	
+	<select id="select_trip_region" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where content_no in (select trip_no from wm_tour_region
+		where region_name = #{region_name}) and board_type = 1
+
+	</select>
+	
+	<select id="select_trip_by_no" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour
+		where trip_no = #{trip_no}
+	</select>
+
+	<select id="select_trip_person" resultType="com.sj.project.domain.PersonalVO">
+		select * from wm_personal
+		where mno = #{mno}
+	</select>
+	
+	<select id="select_trip_profile" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type=3 and content_no = #{mno}
+	</select>
+	
+	<select id="select_trip_region_name" resultType = "String">
+		select region_name from wm_tour_region
+		where trip_no = #{trip_no}
+	</select>
+	
+	<select id="select_register_data" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour where trip_no = #{trip_no}
+	</select>
+	
+	
+
+	
+
+</mapper>

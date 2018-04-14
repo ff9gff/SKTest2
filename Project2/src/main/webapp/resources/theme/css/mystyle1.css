@@ -1,0 +1,102 @@
+@CHARSET "UTF-8";
+
+body {
+	/* font: font-로 시작하는 속성들을 설정할 수 있는 속성
+	  font-size, font-family 등등을 한꺼번에 설정할 수 있음 */ 
+	font: 100% Sans-serif;
+	margin: 20px;
+	line-height: 26px; /* 줄간격 */
+}
+
+
+.wrapper {
+	position: relative;
+	/*overflow: auto;*/
+}
+
+
+#top1 {
+	
+		background-image: url("../resources/theme/images/slide1.jpg");
+		background-size: 100%;
+		background-repeat: no-repeat;
+	padding: 15px;
+}
+
+#menuBar {
+	width: 200px;
+	float: left;
+}
+
+#main {
+	padding: 10px;
+	/*
+	margin-left: 210px;
+    margin-right: 210px;
+    */
+    margin: 0px 210px; /* top & bottom: 0px, right & left: 210px */
+}
+
+
+
+#sidebar {
+	background-color: #ccffff;
+	padding: 10px;
+	width: 180px;
+	height : 100%;
+	position: absolute;
+	top: 0px;
+	right: 0px;/*오른쪽으로 붙여버리겠다라는 말 */
+}
+
+
+img {
+	border: 0px solid white;
+}
+
+#bottom {
+	border: 1px solid #d4d4d4;
+	background-color: #f1f1f1;
+	text-align: center;
+	padding: 10px;
+	font-size: 80%;
+}
+
+#menuList { /*메뉴 바 위치 설정 */
+	margin: 0px;
+	padding: 0px;
+}
+
+.menuItem { /*왼쪽 바 설정임 */
+	list-style-type: none;
+	background-color: #f1f1f1;
+	border: 1px solid #d4d4d4;
+	padding: 4px;
+	text-align: center;
+	margin-top: 5px;
+}
+
+.menuItem:hover {
+	background-color: #ffccff;
+}
+
+.mylink {
+	text-decoration: none;
+	color: #000000;
+}
+
+
+.mylink:hover {
+	color: #cc3300;
+}
+
+
+
+
+
+
+
+
+
+
+

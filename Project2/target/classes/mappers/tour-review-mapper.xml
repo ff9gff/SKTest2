@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sj.project.TourReviewMapper">
+
+<!-- Insert -->
+	<insert id="insert-review">
+		insert into wm_review(title, content, mno)
+		values (#{title}, #{content}, #{mno})
+	</insert>
+	
+	<insert id="insert-thumnail">
+	    insert into wm_image(board_type, content_no, img_url)
+		values (#{board_type}, #{content_no}, #{img_url})
+    </insert>
+    
+    <insert id="insert-region">
+		insert into wm_review_region(review_no, region_name)
+		values (#{review_no}, #{region_name})
+	</insert>
+
+
+<!-- Update -->
+	<update id="update-review">
+		update wm_review
+		set title = #{title}, content = #{content} 
+	    where mno = #{mno} and review_no = #{review_no}
+	</update>
+	
+	<update id="update-thumnail">
+		update wm_image
+		set img_url = #{img_url}
+		where content_no = #{content_no}
+	</update>
+	
+	<update id="update-region">
+		update wm_review_region
+		set region_name = #{region_name}
+		where review_no = #{review_no}
+	</update>
+
+
+<!-- Delete -->
+	<delete id="delete-review">
+		delete from wm_review
+		where review_no = #{review_no}
+	</delete>
+
+	<delete id="delete-thumnail">
+		delete from wm_image
+		where content_no = #{review_no} and board_type = 2		
+	</delete>
+
+	<delete id="delete-region">
+		delete from wm_review_region
+		where review_no = #{review_no}
+	</delete>
+	
+<!-- Select -->
+	<select id="select-review_no" resultType="Integer">
+		select review_no from wm_review
+		where (title = #{title} and content = #{content} and mno = #{mno})
+	</select>	
+	
+
+<!-- Select -->
+	
+	<select id="select_review-register_data" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review
+		where review_no = #{review_no}
+	</select>
+	
+	<select id="select_review_by_no" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review
+		where review_no = #{review no}
+	</select>
+	
+	<select id="select_review_personal" resultType="com.sj.project.domain.PersonalVO">
+		select * from wm_personal
+		where mno = #{mno}
+	</select>
+	
+	<select id="select_review_profile" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type=3 and content_no = #{mno}
+	</select>
+	
+	<select id="select_review_region_name" resultType="String">
+		select region_name from wm_review_region
+		where review_no = #{review_no}
+	</select>
+	
+	<!-- Select___update -->
+	<select id="select_ReviewInfo_by_review_no" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review where review_no = #{review_no}
+	</select>
+	
+	<select id="select_ReviewRegionInfo_by_review_no" resultType="com.sj.project.domain.ReviewRegionVO">
+		select * from wm_review_region where review_no = #{review_no}
+	</select>
+	
+	<select id="select_ReviewMainImage_by_review_no" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image where board_type = 2 and content_no = #{review_no}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<!-- 메인 index.jsp 디폴트 4개 조회수순으로 후기 뿌리기 -->
+	<!-- 1. 이미지 가져오기 -->
+	<select id="select_default_review_image" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image join wm_review
+		on content_no = review_no and board_type = 2
+		order by regdate desc
+	</select>
+	<!-- 2. 제목 가져오기 -->
+	<select id="select_default_review_title" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review order by regdate desc
+	</select>
+	<!-- 3. 지역 가져오기 -->
+	<select id="select_default_review_region" resultType="com.sj.project.domain.ReviewRegionVO">
+		select * from wm_review_region a join wm_review b
+		on a.review_no = b.review_no order by regdate desc
+	</select>
+	
+	<!-- 메인 index.jsp 디폴트 4개 좋아요 순으로 후기 뿌리기 -->
+	<!-- 1. 이미지 가져오기 -->
+	<select id="select_top_review_image" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image join wm_review
+		on content_no = review_no and board_type = 2
+		order by countofbest desc
+	</select>
+	<!-- 2. 제목 가져오기 -->
+	<select id="select_top_review_title" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review order by countofbest
+	</select>
+	<!-- 3. 지역 가져오기 -->
+	<select id="select_top_review_region" resultType="com.sj.project.domain.ReviewRegionVO">
+		select * from wm_review_region a join wm_review b
+		on a.review_no = b.review_no order by countofbest desc
+	</select>
+
+	
+	<!-- 후기 게시판 지역 검색 -->
+	<!-- 1. 이미지 가져오기 -->
+	<select id="select_region_search_image" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type = 2 and content_no in (select review_no from wm_review_region where region_name like #{region_name}) order by content_no desc
+	</select>
+	<!-- 2. 제목 가져오기 -->
+	<select id="select_region_search_title" resultType="com.sj.project.domain.ReviewVO">
+		select * from wm_review where review_no in (select review_no from wm_review_region where region_name like #{region_name}) order by review_no desc
+	</select>
+	<!-- 3. 지역 가져오기 -->
+	<select id="select_region_search_region" resultType="com.sj.project.domain.ReviewRegionVO">
+		select * from wm_review_region where region_name like #{region_name} order by review_no desc
+	</select>
+	
+	
+	<!-- 후기 게시판 현재 조회수 -->
+	<select id="select_current_review_hits" resultType="Integer">
+		select hits from wm_review where review_no = #{review_no}
+	</select>
+	<!-- 후기 게시판 업데이트 후 조회수 -->
+	<update id="update_review_hits">
+		update wm_review
+		set hits = #{hits}
+		where review_no = #{review_no}
+	</update>
+	
+	<!-- 따봉 -->
+	<select id="selectReviewLike" resultType="Integer">
+		select state from wm_best where review_no = #{review_no} and mno = #{mno}
+	</select>
+	
+	<insert id="insertReviewLike">
+		insert into wm_best (mno, review_no, state) values (#{mno}, #{review_no}, 1)
+	</insert>
+	
+	<delete id="deleteReviewLike">
+		delete wm_best where review_no = #{review_no} and mno = #{mno}
+	</delete>
+	
+	<update id="update_review_best">
+		update wm_review
+ 		set countofbest = (select count(state) from wm_best where review_no = #{review_no}) 
+  		where review_no = #{review_no}
+	</update>
+
+</mapper>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- SQL 문장들을 작성하는 XML 파일 -->
+<mapper namespace="com.sj.project.MemberMapper">
+
+   <!-- WM_MEMBER -->
+
+   <select id="login" resultType="com.sj.project.domain.MemberVO">
+      select * from wm_member
+      where userid = #{userid} and pwd = #{pwd}
+   </select>
+
+   <!-- userid로 검색하는 SQL문 -->
+   <select id="select-by-userid" resultType="String">
+      select userid from wm_member where userid = #{userid}
+   </select>
+
+   <select id="select-by-userid2" resultType="Integer">
+      select mno from wm_member where userid = #{userid}
+   </select>
+
+   <insert id="member-insert">
+      insert into wm_member(userid, pwd)
+      values(#{userid}, #{pwd})
+   </insert>
+
+
+   <!-- WM_PERSONAL -->
+   <!-- mno로 검색하는 SQL문 -->
+   <select id="select-by-mno" resultType="com.sj.project.domain.PersonalVO">
+      select mno from wm_personal where mno = #{mno}
+   </select>
+
+   <select id="select-by-nickname" resultType="String">
+      select nickname from wm_personal where nickname = #{nickname}
+   </select>
+
+   <insert id="personal-insert">
+      insert into wm_personal(mno, name, sex, age, nickname, phone, postcode, address1, address2, introduce, email)
+      values(#{mno}, #{name}, #{sex}, #{age}, #{nickname}, #{phone}, #{postcode}, #{address1}, #{address2}, #{introduce}, #{email})
+   </insert>
+   
+   <select id="get-nickname" resultType="String">
+      select nickname from wm_personal where mno = #{mno}
+   </select>
+
+   <!-- WM_IMAGE -->
+   <insert id="profile-insert">
+      insert into wm_image(board_type, content_no, img_url)
+      values (#{board_type}, #{content_no}, #{img_url})
+   </insert>
+
+
+
+
+
+
+   <!-- 전체 검색 SELECT -->
+   <select id="member-select-all" resultType="com.sj.project.domain.MemberVO">
+      select * from test_temp order by mno
+   </select>
+
+
+   <!-- 해당 userid의 pwd와 email을 수정(업데이트) -->
+   <update id="update">
+      update test_temp set pwd = #{pwd}, email = #{email}
+      where userid = #{userid}
+   </update>
+
+   <!-- 관리자: 해당 userid 데이터 삭제 -->
+   <delete id="delete">
+      delete from test_temp where userid = #{userid}
+   </delete>
+
+
+
+   <select id="select_trip_date" resultType="com.sj.project.domain.TourRegisterVO">
+      select * from wm_tour
+      where start_date <![CDATA[<]]>
+      to_date(#{end_date},'YYYY-MM-DD')+1
+      and end_date <![CDATA[>=]]>
+      to_date(#{start_date},'YYYY-MM-DD')
+   </select>
+
+   <select id="select_trip_region" resultType="com.sj.project.domain.ImgVO">
+
+      select * from wm_image
+      where content_no = (select trip_no from wm_tour_region where region_name =
+      #{region_name})
+
+   </select>
+
+   <select id="select_trip_region_image" resultType="com.sj.project.domain.ImgVO">
+      select * from wm_image
+      where board_type = #{board_type} and content_no = #{content_no} and
+      photo_no = #{photo_no}
+   </select>
+   
+   
+   <select id="find_id" resultType="String">
+      select userid from wm_member
+      where mno in (select mno from wm_personal
+		where name = #{name} and
+		phone = #{phone} and
+		email = #{email}
+      )   
+   </select>
+   
+   <select id="find_pwd" resultType="String">
+   	select m.pwd from wm_member m, wm_personal p
+		where 
+		m.mno = p.mno and
+		m.userid = #{userid} and
+		p.name = #{name} and
+		p.phone = #{phone} and
+		p.email = #{email}   
+   </select>
+
+
+
+
+	
+	
+<!-- 조승현 쪽지 보내는 부분 mapper입니다.  -->
+	
+	<!--  Msg Text를 보내는 mapper  -->
+	<select  id="selectMsg" resultType="com.sj.project.domain.MsgVO">
+	select sd_mno , msg_content , msg_date from WM_MSG where rc_Mno =#{mno} <!-- 수정해야하는 부분입니다.  -->
+	</select>
+
+
+
+ <!--   Msg Text 파잃 읋 보내는 닉네임 받아오기  -->
+ <select id="selectNickname" resultType="String">
+ select nickname from WM_PERSONAL where mno = #{mno}
+ </select>
+ 
+ 
+ <!--  Msg Test 새로 운 형식으로 간다,  -->
+<select id="selectGetMsg" resultType="MsgDTO">
+
+select m.msg_no, p.nickname, m.msg_content, m.msg_date
+from wm_msg m, wm_personal p
+where m.sd_mno = p.mno and m.rc_mno = #{mno}
+order by m.msg_no
+
+</select> 
+ 
+ 
+ 
+ 
+<!--  보낸 메일함 을 말합니다.  -->
+
+<select id="selectSendMsg" resultType="com.sj.project.domain.MsgDTO">
+select m.msg_no, p.nickname, m.msg_content, m.msg_date
+from wm_msg m, wm_personal p
+where m.rc_mno = p.mno and m.sd_mno = #{mno}
+order by m.msg_no
+
+</select>
+
+
+<!-- 쪽지함 삭제 할게요  -->
+<delete id="deleteSelectMSG">
+delete from wm_msg
+where msg_no =#{mno}
+</delete>
+
+
+<!-- 쪽지 보여주기 입니다 mno 받아서  -->
+
+<select id="getContentMSG" resultType="String">
+select msg_content from WM_MSG
+where MSG_NO= #{mno}
+
+
+</select>
+
+  <!-- 페이징 처리 하는 부분   보낸 편지함입니다. -->
+  <select resultType="com.sj.project.domain.MsgDTO" id="pageListsendMsg"> 
+  select a.msg_no, a.nickname, a.msg_content, a.msg_date from 
+  ( select rownum rn, m.msg_no, p.nickname, m.msg_content, m.msg_date from wm_msg m, wm_personal p
+  where m.rc_mno = p.mno and m.sd_mno = #{mno}
+
+    )a 
+   
+   where rn between #{start} and #{end} order by a.msg_date desc
+    </select>
+    
+    
+    <!-- 받은 메일 함입니다.  -->
+    <select id="pageListGetMsg" resultType="com.sj.project.domain.MsgDTO">
+    select a.msg_no, a.nickname, a.msg_content, a.msg_date
+	from (
+  		select rownum rn, m.msg_no, p.nickname, m.msg_content, m.msg_date
+  		from wm_msg m, wm_personal p
+  		where m.sd_mno = p.mno and m.rc_mno =#{mno}
+  		
+	) a 
+	where rn between #{start} and #{end} order by a.msg_date desc
+    
+
+    
+    </select>
+    
+    
+    
+    <!-- 페이징 처리를 위한 전체 문 보낸 메일함 -->
+	<select id="totalcount" resultType="Integer">
+		
+		select count(*) from wm_msg where sd_MNO=#{mno}
+	</select>
+	
+	
+	<!-- 페이징 처리를 위한 받은 메일함 -->
+
+	<select id="getMsgTotalcount" resultType="Integer">
+		
+		select count(*) from wm_msg where rc_MNO=#{mno}    
+	</select>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.sj.project.SearchMember">
+  
+ 
+ 
+ <select id="realDomainAdmin" resultType="com.sj.project.domain.DomainDTO">
+ 
+  select m.mno , m.userid , p.phone , p.email , p.joindate
+  from WM_MEMBER m , WM_PERSONAL p 
+  where m.mno = p.mno and m.AUTHORITY =0
+  order by m.mno
+ 
+ 
+ </select>
+ 
+ <select id="realDomainAdminAllUser" resultType="com.sj.project.domain.DomainDTO">
+    select m.mno , m.userid  , p.nickname, p.phone , p.email , p.joindate
+  from WM_MEMBER m , WM_PERSONAL p 
+  where m.mno = p.mno and m.AUTHORITY =1
+  order by m.mno 
+ </select>
+ 
+  <select id="realDomainAdminAllUserT" resultType="com.sj.project.domain.DomainDTO">
+   select a.mno , a.userid  , a.nickname, a.phone , a.email , a.joindate
+  from (
+  select rownum rn, m.mno , m.userid  , p.nickname, p.phone , p.email , p.joindate
+  from WM_MEMBER m , WM_PERSONAL p 
+  where m.mno = p.mno and m.AUTHORITY =1
+  order by m.mno desc
+  )a 
+  where rn between #{start} and #{end}
+ </select>
+ 
+ 
+ 
+  <select id="realDomainSubMyAdmin" resultType="com.sj.project.domain.DomainDTO">
+    select m.mno , m.userid  , p.nickname, p.phone , p.email , p.joindate
+  from WM_MEMBER m , WM_PERSONAL p 
+  where m.mno = p.mno and m.AUTHORITY =2
+  order by m.mno
+
+ </select>
+ 
+ 
+ <select id="userLevel12" resultType="com.sj.project.domain.MemberVO">
+ 
+ 	select mno from WM_Member where AUTHORITY=1 or  AUTHORITY=2
+ 
+ </select>
+  
+  
+  <insert id="sendAlluser12">
+  
+    insert into WM_MSG (sd_mno , rc_mno , msg_content,msg_check) values 
+ (1,#{mno} ,#{msg_content},3)
+ 
+  </insert>
+  
+
+  <select id="newUser" resultType="com.sj.project.domain.MemberVO">
+  
+  
+ select * from WM_MEMBER WHERE AUTHORITY = 0 order by mno desc
+  
+  
+  </select>
+  
+  
+  
+  
+<update id="updatePlayer"> <!--  승낙하는 단계  -->
+
+ UPDATE WM_MEMBER set AUTHORITY = 2 WHERE MNO = #{mno};
+
+</update>
+  
+
+<update id="updateBanUser"> <!-- 강퇴하는 단계  -->
+
+UPDATE WM_MEMBER set AUTHORITY = 0 WHERE MNO = #{mno};
+</update>
+  
+  
+  
+  
+  <!--  유저 이름 찾기 SearchUser -->
+  <select id="searchUserName" resultType="com.sj.project.domain.MemberVO">
+	
+	select * from WM_MEMBER WHERE USERID 
+	LIKE #{userid} order by mno desc
+
+	</select>
+  
+  <!-- 쪽지 보내기에서 유저 정보 가져오기   select mno from WM_personal where nickname = 'see';-->
+	<select id="searchSndUno" resultType="Integer">
+	
+	select mno from WM_PERSONAL where nickname= #{nickname}
+	
+	</select>  
+	
+	
+  
+  <!-- 쪽지 보내기 기능 입니다. 실제 db에 입력 되는  -->
+  <insert id="sendMSGU">
+  
+  insert into WM_MSG (sd_mno , rc_mno , msg_content) values 
+ (#{sd_mno},#{rc_mno} ,#{msg_content})
+  
+  </insert>
+  
+  
+ <!--  등급이 0 인에들을 먼저 받슴니다,   integer로 받음 -->
+  
+  <select id="selectLevelZero" resultType="Integer">
+ select mno from WM_Member where AUTHORITY=0
+
+  </select>
+  
+  
+  <!-- 위 에서 받은 mno를 가지고 업데이트를 할 것이다.  -->
+  
+  <update id="upgradeLevelOne">
+  	update WM_MEMBER set AUTHORITY = 1 where mno = #{mno}
+  </update>
+  
+  
+  <!--  레벨 2로 관리자 모드로 올린다,  -->
+  
+  
+    <update id="upgradeLevelTwo">
+  	update WM_MEMBER set AUTHORITY = 2 where mno = #{mno}
+  </update>
+  
+  
+   <!-- 블랙리스트를 그냥 지우기 보다는 레벨등급을 낮춰 버리자 . -->
+
+      <update id="downGradeLevel">
+  	update WM_MEMBER set AUTHORITY = -1 where mno = #{mno}
+  </update>
+  
+  
+  
+  
+  <!-- 일반회원으로 낮추는 작업을 합니다.  -->
+  
+  <insert id="downGradeLevelMSG">
+   insert into WM_MSG (sd_mno , rc_mno , msg_content) values 
+ (1,#{mno} ,'일반회원으로 강등되었습니다. 관련문의는 이메일로 연락주세요.')
+  
+
+  </insert>
+  
+  <!-- 관리자로 승격합니다. -->
+  
+  <insert id="upgradeLevelTwoMSG">
+  
+   insert into WM_MSG (sd_mno , rc_mno , msg_content) values 
+ (1,#{mno} ,'관리자로 임명되었습니다.')
+  
+  
+  </insert>
+  
+
+<!-- 관리자가 보낸 공지사항 글에 대해서 수정하는 부분 입니다.  -->
+<select id="selectContextAdminMSG" resultType="String">
+
+
+select msg_content from WM_Msg where sd_mno=1 and MSG_CHECK =3 order by  MSG_DATE  DESC
+
+</select>
+
+<!-- 관리자가 받은 자료 입니다. Msg 내가 나한테 -->
+
+<select id="selectToMSGFromMSGSelf" resultType="com.sj.project.domain.AdminMsgDTO">
+
+select msg_content , MSG_DATE , MSG_NO from WM_Msg where sd_mno=1 and rc_mno=1 order by  MSG_DATE  DESC
+
+</select>
+
+
+
+<!--  전체 유저의 수를 나타 냅니다. 
+ 이전  mapper 12 12 이전 
+ select count(*) from WM_MEMBER where AUTHORITY = 1
+  -->
+<select id="cntAllActivUsers" resultType="Integer">
+
+  select count(*)
+  from WM_MEMBER m , WM_PERSONAL p 
+  where m.mno = p.mno and m.AUTHORITY =1 
+  order by m.mno desc
+</select>
+
+
+
+
+
+
+
+  
+  </mapper>

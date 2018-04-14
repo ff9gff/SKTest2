@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sj.project.MypageMapper">
+
+	<select id="select-personalbymno" resultType="personalVO">
+		select * from wm_personal
+		where mno = #{mno}
+	</select>
+
+	<select id="select_trip_mno" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where content_no in (select trip_no from wm_tour
+		where mno = #{mno})
+
+	</select>
+
+	<select id="selectProfile" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type=3 and content_no = #{mno}
+	</select>
+	
+	<select id="selectJoin" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where content_no in (select trip_no from wm_tour_join
+		where mno = #{mno})
+	</select>
+	
+
+	<select id="selectreview" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where content_no in (select review_no from wm_review
+		where mno = #{mno})
+	</select>
+
+
+	
+	<select id="select_mytour_title" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour
+		where trip_no in (select trip_no from wm_tour
+		where mno = #{mno})
+	</select>
+	
+	<select id="select_mytourjoin_title" resultType="com.sj.project.domain.TourRegisterVO">
+		select * from wm_tour
+		where trip_no in (select trip_no from wm_tour_join
+		where mno = #{mno})
+	</select>
+	
+	<select id="select_mytour_region" resultType="com.sj.project.domain.RegionVO">
+ 		select * from wm_tour_region
+ 		where trip_no in (select trip_no from wm_tour
+		where mno = #{mno})
+ 	</select>
+ 	
+ 	<select id="select_mytourjoin_region" resultType="com.sj.project.domain.RegionVO">
+ 		select * from wm_tour_region
+ 		where trip_no in (select trip_no from wm_tour_join
+		where mno = #{mno})
+ 	</select>
+ 	
+ 	<select id="select_review_title" resultType="com.sj.project.domain.ReviewVO">
+ 		select * from wm_review
+ 		where review_no in (select review_no from wm_review
+ 		where mno = #{mno})
+ 	</select>
+ 	
+ 	<select id="select_review_region" resultType="com.sj.project.domain.ReviewRegionVO">
+ 		select * from wm_review_region
+ 		where review_no in(select review_no from wm_review
+ 		where mno = #{mno})
+ 	</select>
+ 	
+ 	
+ 	<update id="update-profile"> 
+ 		update wm_personal 
+ 		set sex = #{sex}, age = #{age}, nickname = #{nickname}, phone = #{phone}, postcode = ${postcode}, address1 = #{address1}, address2 = #{address2}, introduce = #{introduce}, email = #{email}   
+	    where mno = #{mno} 
+	</update>
+	
+	
+
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.sj.project.ImageUploadMapper">
+	
+	<insert id="insert_image">
+		insert into wm_image (board_type, content_no, img_url) values (#{board_type}, #{trip_no}, #{img_url})
+	</insert>
+
+
+</mapper>

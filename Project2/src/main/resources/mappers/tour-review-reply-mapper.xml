@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.sj.project.TourReviewReplyMapper">
+	
+	<insert id="insert">
+		insert into wm_review_reply(parentrno, review_no, mno, rcontent)
+		values(#{parentrno}, #{review_no}, #{mno}, #{rcontent})
+	</insert>
+
+	<select id="select" resultType="com.sj.project.domain.ReviewReplyVO">
+		select * from wm_review_reply
+		where review_no = #{review_no}
+		order by rno asc
+	</select>
+	
+	<select id = "selectperson" resultType="com.sj.project.domain.PersonalVO">
+		select * from wm_personal
+		where mno in (select mno from wm_review_reply where review_no = #{review_no})
+	</select>
+	
+	<update id="update">
+		update wm_review_reply
+		set rcontent = #{rcontent}, regdate = sysdate
+		where rno = #{rno}
+	</update>
+	
+	<delete id="delete">
+		delete from wm_review_reply
+		where rno = #{rno}
+	</delete>
+	
+	<delete id="alldelete">
+		delete from wm_review_reply
+		where parentrno = #{parentrno}
+	</delete>
+	
+	<select id="selectProfile" resultType="com.sj.project.domain.ImgVO">
+		select * from wm_image
+		where board_type=3 and content_no = #{mno}
+	</select>
+	
+
+</mapper>
