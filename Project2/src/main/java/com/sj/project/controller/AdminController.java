@@ -38,12 +38,10 @@ public class AdminController {
 	
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
 	public void callAdmin(Model model) {
-		
 		//여기를 수정하겠습니다. 11.28 수정 완료 부분 
 		List<DomainDTO> list2 = adminService.readAdminDomain();
 		logger.info("admin.jsp 소환 ");
 		model.addAttribute("newMemberList", list2);
-
 	}
 	
 	// 아이디 정보를 찾는 거다 . 
